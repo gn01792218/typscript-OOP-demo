@@ -13,7 +13,6 @@ export default class RenderForm extends RenderHTML{
     decsriptionInput : HTMLInputElement
     propleInput : HTMLInputElement
     constructor(template:HTMLTemplateElement,hostEle:HTMLDivElement){
-        console.log('創建RenderForm')
         super(template,hostEle)
         this.titleInput = this.element.querySelector('#title') as HTMLInputElement
         this.decsriptionInput = this.element.querySelector('#description') as HTMLInputElement
@@ -21,14 +20,12 @@ export default class RenderForm extends RenderHTML{
         this.addSubmitListener('submit',this.submitHandler)
     }
     private submitHandler(eve:Event){
-        console.log('提交title')
         //送出表單的方法
         //停止事件的默認動作-->例如 form的默認動作是送交(經http 請求)，阻止後，按下送出就不會送交
         eve.preventDefault()
         console.log(this.titleInput.value)
     }
     private addSubmitListener(eventName:string,handler:(eve:Event)=>void){
-        console.log('執行方法')
         console.log(eventName)
         console.log(handler)
         //注意，callBack function必須要透過bind才會找到本體唷!!!!!
