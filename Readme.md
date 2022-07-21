@@ -40,3 +40,4 @@ function validate(validatableTnput: Validatable){
 }
 ```
 #### 3.為getUserInput方法加裝驗證
+### 4.建立渲染List的class

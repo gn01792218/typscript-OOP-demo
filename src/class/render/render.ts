@@ -1,4 +1,5 @@
-import { Validatable } from '../types/validation'
+import { Validatable } from '../../types/validation/validation'
+import { RenderOption } from '../../types/gloable'
 function autobind (_:any,_2:string,descriptior:PropertyDescriptor){
     const originalMethod = descriptior.value
     const adjDescriptor:PropertyDescriptor = {
@@ -31,22 +32,23 @@ function validate(validatableTnput: Validatable){
     }
     return isValid
 }
+
 export class RenderHTML {
     element:HTMLElement
     //創建時，輸入template並選擇要掛載到哪個host上
-    constructor(private template:HTMLTemplateElement,private hostEle:HTMLDivElement){
+    constructor(private template:HTMLTemplateElement,private hostEle:HTMLDivElement,private option:RenderOption = {insertPosition:'afterbegin'}){
         //將template的東西導入,true表示深度拷貝
         this.element = document.importNode(this.template.content,true).firstElementChild as HTMLElement
         //掛載到hostEle上
-        this.hostEle.insertAdjacentElement('afterbegin',this.element)
+        this.hostEle.insertAdjacentElement(option.insertPosition,this.element)
     }
 }
 export class RenderForm extends RenderHTML{
     titleInput : HTMLInputElement
     decsriptionInput : HTMLInputElement
     propleInput : HTMLInputElement
-    constructor(template:HTMLTemplateElement,hostEle:HTMLDivElement){
-        super(template,hostEle)
+    constructor(template:HTMLTemplateElement,hostEle:HTMLDivElement,_option:RenderOption = {insertPosition:'afterbegin'}){
+        super(template,hostEle,_option)
         this.titleInput = this.element.querySelector('#title') as HTMLInputElement
         this.decsriptionInput = this.element.querySelector('#description') as HTMLInputElement
         this.propleInput = this.element.querySelector('#people') as HTMLInputElement
@@ -102,5 +104,18 @@ export class RenderForm extends RenderHTML{
         console.log(handler)
         //注意，callBack function必須要透過bind才會找到本體唷!!!!!
         this.element.addEventListener(eventName,handler)
+    }
+}
+export class RenderList extends RenderHTML {
+    constructor(template:HTMLTemplateElement,hostEle:HTMLDivElement, private type:'active' | 'finished',_option:RenderOption = {insertPosition:'afterbegin'}){
+        super(template,hostEle,_option)
+        this.element.id = `${this.type}-projects`
+        this.renderContent()
+    }
+    private renderContent(){
+        const listid = `${this.type}-projects-list`
+        //動態的給ulid
+        this.element.querySelector('ul')!.id = listid
+        this.element.querySelector('h2')!.textContent = this.type.toUpperCase()+'PROJECTS'
     }
 }
