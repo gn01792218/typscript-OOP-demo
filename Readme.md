@@ -19,14 +19,24 @@ interface Validatable {
 ```Ts
 function validate(validatableTnput: Validatable){
     let isValid = true
-    const { required , value , minLength ,min } = validatableTnput
+    const { required, value, minLength, min, max} = validatableTnput
     if(required){
         //長度不等於0 且 isValid
         isValid = isValid && value.toString().trim().length !==0
     }
-    if(typeof value === 'string' && minLength){  //對字串的檢查
+    if(typeof value === 'string' && minLength != null){  //對字串的檢查，!= null 就包含檢查null和undefiend
         isValid = isValid && value.length > minLength
+    }
+    if(typeof value === 'string' && maxLength != null){  //對字串的檢查，!= null 就包含檢查null和undefiend
+        isValid = isValid && value.length < maxLength
+    }
+    if( min != null &&  typeof value === 'number'){  //對數字的檢查
+        isValid = isValid && value > min
+    }
+    if( max != null &&  typeof value === 'number'){  //對數字的檢查
+        isValid = isValid && value < max
     }
     return isValid
 }
 ```
+#### 3.為getUserInput方法加裝驗證

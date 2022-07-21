@@ -1,3 +1,4 @@
+import { Validatable } from '../types/validation'
 function autobind (_:any,_2:string,descriptior:PropertyDescriptor){
     const originalMethod = descriptior.value
     const adjDescriptor:PropertyDescriptor = {
@@ -8,6 +9,27 @@ function autobind (_:any,_2:string,descriptior:PropertyDescriptor){
         }
     }
 return adjDescriptor
+}
+function validate(validatableTnput: Validatable){
+    let isValid = true
+    const { required, value, minLength, maxLength, min, max} = validatableTnput
+    if(required){
+        //長度不等於0 且 isValid
+        isValid = isValid && value.toString().trim().length !==0
+    }
+    if(typeof value === 'string' && minLength != null){  //對字串的檢查，!= null 就包含檢查null和undefiend
+        isValid = isValid && value.length > minLength
+    }
+    if(typeof value === 'string' && maxLength != null){  //對字串的檢查，!= null 就包含檢查null和undefiend
+        isValid = isValid && value.length < maxLength
+    }
+    if( min != null &&  typeof value === 'number'){  //對數字的檢查
+        isValid = isValid && value > min
+    }
+    if( max != null &&  typeof value === 'number'){  //對數字的檢查
+        isValid = isValid && value < max
+    }
+    return isValid
 }
 export class RenderHTML {
     element:HTMLElement
@@ -30,12 +52,29 @@ export class RenderForm extends RenderHTML{
         this.propleInput = this.element.querySelector('#people') as HTMLInputElement
         this.addSubmitListener('submit',this.submitHandler)
     }
+    
     private getUserInput():[string,string,number] | void{
         const title = this.titleInput.value
         const description = this.decsriptionInput.value
         const people = this.propleInput.value
-        if(title.trim().length ===0 || description.trim().length ===0 || people.trim().length ===0 ){
-            alert('請檢查所有欄位都以輸入完畢')
+        //設置驗證機制
+        const titleValidatable : Validatable = {
+            value:title,
+            required:true,
+        }
+        const desValidatable : Validatable = {
+            value:description,
+            required:true,
+            minLength:5,
+            maxLength:50,
+        }
+        const peopleValidatable : Validatable = {
+            value:+people,
+            min:0,
+            max:10
+        }
+        if(!validate(titleValidatable) || !validate(desValidatable) || !validate(peopleValidatable) ){
+            alert('請檢查所有欄位都已輸入完畢')
             return
         }
         return [title,description,+people]
