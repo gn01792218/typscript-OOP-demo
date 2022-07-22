@@ -1,17 +1,23 @@
 import { Project, Listener } from '../../types/projectState/projectState'
-export class ProjectState {
-    private listeners:Listener[] = []  //訂閱者陣列
+
+//父類別，不需要被外面知道，不用export
+//採用訂閱者模式
+class State<T>{
+    protected listeners:Listener<T>[] = []  //訂閱者陣列
+    addListener(listernerFn:Listener<T>){ //供訂閱者註冊的方法
+        this.listeners.push(listernerFn)
+    }
+}
+//project的State
+export class ProjectState extends State<Project>{
     private projects:Project[] = []; //資料陣列
     private static instance:ProjectState; //單例實體
-    private constructor(){}
+    private constructor(){super()}
     static getInstance(){
         if(ProjectState.instance){
             return ProjectState.instance
         }
         return ProjectState.instance = new ProjectState()
-    }
-    addListener(listernerFn:Listener){ //供訂閱者註冊的方法
-        this.listeners.push(listernerFn)
     }
     addProject(project:Project){ //新增項目的方法
         this.projects.push(project)

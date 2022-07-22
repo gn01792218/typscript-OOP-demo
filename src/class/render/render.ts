@@ -35,17 +35,18 @@ function validate(validatableTnput: Validatable){
     return isValid
 }
 
-export class RenderHTML {
-    element:HTMLElement
+export abstract class RenderHTML<T extends HTMLElement, U extends HTMLElement> {
+    element:T
     //創建時，輸入template並選擇要掛載到哪個host上
-    constructor(private template:HTMLTemplateElement,private hostEle:HTMLDivElement,private option:RenderOption = {insertPosition:'afterbegin'}){
+    constructor(private template:HTMLTemplateElement,private hostEle:U,private option:RenderOption = {insertPosition:'afterbegin'}){
         //將template的東西導入,true表示深度拷貝
-        this.element = document.importNode(this.template.content,true).firstElementChild as HTMLElement
+        this.element = document.importNode(this.template.content,true).firstElementChild as T
         //掛載到hostEle上
         this.hostEle.insertAdjacentElement(option.insertPosition,this.element)
     }
+    abstract renderContent():void
 }
-export class RenderForm extends RenderHTML{
+export class RenderForm extends RenderHTML<HTMLElement, HTMLDivElement>{
     titleInput : HTMLInputElement
     decsriptionInput : HTMLInputElement
     propleInput : HTMLInputElement
@@ -56,7 +57,7 @@ export class RenderForm extends RenderHTML{
         this.propleInput = this.element.querySelector('#people') as HTMLInputElement
         this.addSubmitListener('submit',this.submitHandler)
     }
-    
+    renderContent(){}
     private getUserInput():[string,string,number] | void{
         const title = this.titleInput.value
         const description = this.decsriptionInput.value
@@ -114,7 +115,7 @@ export class RenderForm extends RenderHTML{
         this.element.addEventListener(eventName,handler)
     }
 }
-export class RenderList extends RenderHTML {
+export class RenderList extends RenderHTML<HTMLElement, HTMLDivElement> {
     private assignProjects:Project[]; //裝載訂閱ProjectState獲得的資料
     constructor(template:HTMLTemplateElement,hostEle:HTMLDivElement, private type:'active' | 'finished',_option:RenderOption = {insertPosition:'afterbegin'}){
         super(template,hostEle,_option)
@@ -139,7 +140,8 @@ export class RenderList extends RenderHTML {
         this.renderContent()
         
     }
-    private renderContent(){
+    configure(): void {}
+    renderContent(){
         const listid = `${this.type}-projects-list`
         //動態的給ulid
         this.element.querySelector('ul')!.id = listid
