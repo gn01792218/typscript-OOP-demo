@@ -1,5 +1,6 @@
 import { Validatable } from '../../types/validation/validation'
-import { RenderOption, Project } from '../../types/gloable'
+import { RenderOption } from '../../types/gloable'
+import { Project, ProjectType } from '../../types/projectState/projectState'
 import { ProjectState } from '../state/state'
 function autobind (_:any,_2:string,descriptior:PropertyDescriptor){
     const originalMethod = descriptior.value
@@ -99,6 +100,7 @@ export class RenderForm extends RenderHTML{
                 title:title,
                 description:description,
                 peopleNum:people,
+                type:ProjectType.ACTIVE
             } 
             //單例資料管理
             const projectState = ProjectState.getInstance()
@@ -122,7 +124,15 @@ export class RenderList extends RenderHTML {
         const projectState = ProjectState.getInstance()
         projectState.addListener((projects:Project[])=>{
             //這裡會得到訂閱ProjectState送來的projects資料
-            this.assignProjects = projects
+            //只顯示該type相同的類型
+            this.assignProjects = projects.filter(project=>{
+                switch(this.type){
+                    case 'active':
+                        return project.type === ProjectType.ACTIVE
+                    case 'finished':
+                        return project.type === ProjectType.FINISHED
+                }
+            })
             this.renderProjects()
         })
         //渲染內容
@@ -137,7 +147,7 @@ export class RenderList extends RenderHTML {
     }
     private renderProjects(){
         const listEle = this.element.querySelector('ul')! as HTMLUListElement
-        console.log(listEle)
+        listEle.innerHTML = ''
         for (let projectItem of this.assignProjects){
             //建立li
             const item = document.createElement('li')

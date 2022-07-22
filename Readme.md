@@ -44,7 +44,7 @@ function validate(validatableTnput: Validatable){
 ### 5.建立ProjectState管理(類似vuex)資料 : 使用單例模式管理State、訂閱模式發送資料
 ```javascript
 class ProjectState {
-    private listeners:any = []  //訂閱者陣列
+    private listeners:Listener[] = []  //訂閱者陣列
     private projects:Project[] = []; //資料陣列
     private static instance:ProjectState; //單例實體
     private constructor(){}
@@ -54,7 +54,7 @@ class ProjectState {
         }
         return ProjectState.instance = new ProjectState()
     }
-    addListener(listernerFn:Function){ //供訂閱者註冊的方法
+    addListener(listernerFn:Listener){ //供訂閱者註冊的方法
         this.listeners.push(listernerFn)
     }
     addProject(project:Project){ //新增項目的方法
@@ -104,7 +104,6 @@ class RenderList extends RenderHTML {
     //其他略...
     private renderProjects(){
         const listEle = this.element.querySelector('ul')! as HTMLUListElement
-        console.log(listEle)
         for (let projectItem of this.assignProjects){
             //建立li
             const item = document.createElement('li')

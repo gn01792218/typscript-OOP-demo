@@ -1,6 +1,6 @@
-import { Project } from '../../types/gloable'
+import { Project, Listener } from '../../types/projectState/projectState'
 export class ProjectState {
-    private listeners:any = []  //訂閱者陣列
+    private listeners:Listener[] = []  //訂閱者陣列
     private projects:Project[] = []; //資料陣列
     private static instance:ProjectState; //單例實體
     private constructor(){}
@@ -10,7 +10,7 @@ export class ProjectState {
         }
         return ProjectState.instance = new ProjectState()
     }
-    addListener(listernerFn:Function){ //供訂閱者註冊的方法
+    addListener(listernerFn:Listener){ //供訂閱者註冊的方法
         this.listeners.push(listernerFn)
     }
     addProject(project:Project){ //新增項目的方法
