@@ -121,10 +121,10 @@ class RenderList extends RenderHTML {
         }
     }
 ```
-### 6.建立ProjectItem class
+### 6.優化-建立ProjectItem class
 #### HTML樣板
 每個Project其實就是一個li，裡面放title、peopleNum、description資訊，如下
-```
+```html
 <template id="single">
     <li>
       <h2></h2>
@@ -157,3 +157,54 @@ class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> {
 }
 
 ```
+### 7.添加drag drop功能
+添加兩個interface，分別是dragable、dropable。
+我們要讓ProjectItem類別implment dragable ； 讓ProjectList類別implements dropable
+```javascript
+//定義interface
+interface Draggable {
+    dragStartHandler(event:DragEvent):void
+    dragEndHandler(event: DragEvent):void
+}
+interface Dropable {
+    dragOverHandler(event:DragEvent):void  //判斷是否可以drop
+    dropHandler(event:DragEvent):void
+    dragLeaveHandler(event:DragEvent):void
+}
+
+```
+```javascript
+//為ProjectItem類implment dragable
+class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> implements Draggable {
+    //...略
+    constructor(template:HTMLTemplateElement,hostEle:HTMLUListElement,project:Project,_option:RenderOption = {insertPosition:'afterbegin'}){
+        super(template,hostEle)
+        this.project = project
+        this.listenDragEvent()
+        this.renderContent()
+    }
+    @autobind
+    dragStartHandler(event: DragEvent): void {
+        console.log(event)
+    }
+    dragEndHandler(_event: DragEvent): void {
+        console.log('drag end')
+    }
+    listenDragEvent(){
+        this.element.addEventListener('dragstart',this.dragStartHandler)
+        this.element.addEventListener('dragend',this.dragEndHandler)
+    }
+
+```
+#### 為li元素添加draggable屬性
+```html
+ <template id="single">
+    <li draggable="true">
+      <h2></h2>
+      <h3></h3>
+      <p></p>
+    </li>
+  </template>
+```
+
+

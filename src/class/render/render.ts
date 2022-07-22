@@ -1,5 +1,5 @@
 import { Validatable } from '../../types/validation/validation'
-import { RenderOption } from '../../types/gloable'
+import { RenderOption, Draggable, Dropable } from '../../types/gloable'
 import { Project, ProjectType } from '../../types/projectState/projectState'
 import { ProjectState } from '../state/state'
 function autobind (_:any,_2:string,descriptior:PropertyDescriptor){
@@ -46,7 +46,7 @@ export abstract class RenderHTML<T extends HTMLElement, U extends HTMLElement> {
     }
     abstract renderContent():void
 }
-export class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> {
+export class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> implements Draggable {
     private project:Project
     //getter for peopleNum str
     get peopleNumStr(){
@@ -56,7 +56,19 @@ export class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> {
     constructor(template:HTMLTemplateElement,hostEle:HTMLUListElement,project:Project,_option:RenderOption = {insertPosition:'afterbegin'}){
         super(template,hostEle)
         this.project = project
+        this.listenDragEvent()
         this.renderContent()
+    }
+    @autobind
+    dragStartHandler(event: DragEvent): void {
+        console.log(event)
+    }
+    dragEndHandler(_event: DragEvent): void {
+        console.log('drag end')
+    }
+    listenDragEvent(){
+        this.element.addEventListener('dragstart',this.dragStartHandler)
+        this.element.addEventListener('dragend',this.dragEndHandler)
     }
     renderContent(): void {
         this.element.querySelector('h2')!.textContent = this.project.title
