@@ -48,6 +48,11 @@ export abstract class RenderHTML<T extends HTMLElement, U extends HTMLElement> {
 }
 export class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> {
     private project:Project
+    //getter for peopleNum str
+    get peopleNumStr(){
+        if(this.project.peopleNum === 1)return '1 person'
+        return `${this.project.peopleNum} persons`
+    }
     constructor(template:HTMLTemplateElement,hostEle:HTMLUListElement,project:Project,_option:RenderOption = {insertPosition:'afterbegin'}){
         super(template,hostEle)
         this.project = project
@@ -55,7 +60,7 @@ export class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> {
     }
     renderContent(): void {
         this.element.querySelector('h2')!.textContent = this.project.title
-        this.element.querySelector('h3')!.textContent = this.project.peopleNum.toString()
+        this.element.querySelector('h3')!.textContent = this.peopleNumStr+' assigned'
         this.element.querySelector('p')!.textContent = this.project.description
     }
 }
