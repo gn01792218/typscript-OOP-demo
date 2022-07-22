@@ -95,7 +95,15 @@ class RenderList extends RenderHTML {
         const projectState = ProjectState.getInstance()
         projectState.addListener((projects:Project[])=>{
             //這裡會得到訂閱ProjectState送來的projects資料
-            this.assignProjects = projects
+            //只顯示該type相同的類型
+            this.assignProjects = projects.filter(project=>{
+                switch(this.type){
+                    case 'active':
+                        return project.type === ProjectType.ACTIVE
+                    case 'finished':
+                        return project.type === ProjectType.FINISHED
+                }
+            })
             this.renderProjects()
         })
         //...略
@@ -104,6 +112,7 @@ class RenderList extends RenderHTML {
     //其他略...
     private renderProjects(){
         const listEle = this.element.querySelector('ul')! as HTMLUListElement
+        listEle.innerHTML = ''
         for (let projectItem of this.assignProjects){
             //建立li
             const item = document.createElement('li')
