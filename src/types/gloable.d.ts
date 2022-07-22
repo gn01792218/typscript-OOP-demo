@@ -1,1 +1,2 @@
-declare interface RenderOption{}
+declare interface RenderOption {}
+declare interface Project {}

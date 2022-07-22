@@ -1,5 +1,6 @@
 import { Validatable } from '../../types/validation/validation'
-import { RenderOption } from '../../types/gloable'
+import { RenderOption, Project } from '../../types/gloable'
+import { ProjectState } from '../state/state'
 function autobind (_:any,_2:string,descriptior:PropertyDescriptor){
     const originalMethod = descriptior.value
     const adjDescriptor:PropertyDescriptor = {
@@ -94,28 +95,54 @@ export class RenderForm extends RenderHTML{
         const userInput = this.getUserInput()
         if(Array.isArray(userInput)){
             const [title,description,people] = userInput
-            console.log(title,description,people)
+            const project:Project = {
+                title:title,
+                description:description,
+                peopleNum:people,
+            } 
+            //單例資料管理
+            const projectState = ProjectState.getInstance()
+            projectState.addProject(project)
             this.clearUserInput()
         }
         
     }
     private addSubmitListener(eventName:string,handler:(eve:Event)=>void){
-        console.log(eventName)
-        console.log(handler)
         //注意，callBack function必須要透過bind才會找到本體唷!!!!!
         this.element.addEventListener(eventName,handler)
     }
 }
 export class RenderList extends RenderHTML {
+    private assignProjects:Project[]; //裝載訂閱ProjectState獲得的資料
     constructor(template:HTMLTemplateElement,hostEle:HTMLDivElement, private type:'active' | 'finished',_option:RenderOption = {insertPosition:'afterbegin'}){
         super(template,hostEle,_option)
+        this.assignProjects = []
         this.element.id = `${this.type}-projects`
+        //訂閱projectState以渲染資料
+        const projectState = ProjectState.getInstance()
+        projectState.addListener((projects:Project[])=>{
+            //這裡會得到訂閱ProjectState送來的projects資料
+            this.assignProjects = projects
+            this.renderProjects()
+        })
+        //渲染內容
         this.renderContent()
+        
     }
     private renderContent(){
         const listid = `${this.type}-projects-list`
         //動態的給ulid
         this.element.querySelector('ul')!.id = listid
         this.element.querySelector('h2')!.textContent = this.type.toUpperCase()+'PROJECTS'
+    }
+    private renderProjects(){
+        const listEle = this.element.querySelector('ul')! as HTMLUListElement
+        console.log(listEle)
+        for (let projectItem of this.assignProjects){
+            //建立li
+            const item = document.createElement('li')
+            item.textContent = projectItem.title
+            listEle.appendChild(item)
+        }
     }
 }
