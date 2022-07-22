@@ -46,6 +46,19 @@ export abstract class RenderHTML<T extends HTMLElement, U extends HTMLElement> {
     }
     abstract renderContent():void
 }
+export class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> {
+    private project:Project
+    constructor(template:HTMLTemplateElement,hostEle:HTMLUListElement,project:Project,_option:RenderOption = {insertPosition:'afterbegin'}){
+        super(template,hostEle)
+        this.project = project
+        this.renderContent()
+    }
+    renderContent(): void {
+        this.element.querySelector('h2')!.textContent = this.project.title
+        this.element.querySelector('h3')!.textContent = this.project.peopleNum.toString()
+        this.element.querySelector('p')!.textContent = this.project.description
+    }
+}
 export class RenderForm extends RenderHTML<HTMLElement, HTMLDivElement>{
     titleInput : HTMLInputElement
     decsriptionInput : HTMLInputElement
@@ -152,9 +165,8 @@ export class RenderList extends RenderHTML<HTMLElement, HTMLDivElement> {
         listEle.innerHTML = ''
         for (let projectItem of this.assignProjects){
             //建立li
-            const item = document.createElement('li')
-            item.textContent = projectItem.title
-            listEle.appendChild(item)
+            const liTemplate = document.getElementById('single') as HTMLTemplateElement
+            new ProjectItem(liTemplate,listEle,projectItem)
         }
     }
 }

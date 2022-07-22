@@ -121,3 +121,34 @@ class RenderList extends RenderHTML {
         }
     }
 ```
+### 6.建立ProjectItem class
+#### HTML樣板
+每個Project其實就是一個li，裡面放title、peopleNum、description資訊，如下
+```
+<template id="single">
+    <li>
+      <h2></h2>
+      <h3></h3>
+      <p></p>
+    </li>
+  </template>
+
+```
+#### ProjectItem class
+host的元素是HTMLUlelement唷~
+```javascript
+class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> {
+    private project:Project
+    constructor(template:HTMLTemplateElement,hostEle:HTMLUListElement,project:Project,_option:RenderOption = {insertPosition:'afterbegin'}){
+        super(template,hostEle)
+        this.project = project
+        this.renderContent()
+    }
+    renderContent(): void {
+        this.element.querySelector('h2')!.textContent = this.project.title
+        this.element.querySelector('h3')!.textContent = this.project.peopleNum.toString()
+        this.element.querySelector('p')!.textContent = this.project.description
+    }
+}
+
+```
