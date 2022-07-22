@@ -1,4 +1,4 @@
-import { Project, Listener } from '../../types/projectState/projectState'
+import { Project, Listener, ProjectType } from '../../types/projectState/projectState'
 
 //父類別，不需要被外面知道，不用export
 //採用訂閱者模式
@@ -22,6 +22,19 @@ export class ProjectState extends State<Project>{
     addProject(project:Project){ //新增項目的方法
         this.projects.push(project)
         //每次有新的資料增加，就呼叫this.listerners裡面的每個方法
+        this.updateState()
+    }
+    switchProjectType(projectId:string,newProjectType:ProjectType){
+        const project = this.projects.find(project=>{
+            return project.id === projectId
+        })
+        if(project && project.type!== newProjectType) {
+            project.type = newProjectType
+            //記得重新渲染資料
+            this.updateState()
+        }
+    }
+    private updateState(){
         for(let listernerFn of this.listeners){
             //pass 訂閱者 要的資料
             //使用slice複製資料，才不會改到原始資料

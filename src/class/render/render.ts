@@ -61,10 +61,12 @@ export class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> impl
     }
     @autobind
     dragStartHandler(event: DragEvent): void {
-        console.log(event)
+        //標示被拖曳的元素，並取得data
+        event.dataTransfer!.setData('text/plain',this.project.id)
+        //讓該元素可以從A移動到B
+        event.dataTransfer!.effectAllowed = 'move'
     }
     dragEndHandler(_event: DragEvent): void {
-        console.log('drag end')
     }
     listenDragEvent(){
         this.element.addEventListener('dragstart',this.dragStartHandler)
@@ -128,6 +130,7 @@ export class RenderForm extends RenderHTML<HTMLElement, HTMLDivElement>{
         if(Array.isArray(userInput)){
             const [title,description,people] = userInput
             const project:Project = {
+                id:Math.random().toString(),
                 title:title,
                 description:description,
                 peopleNum:people,
@@ -138,14 +141,13 @@ export class RenderForm extends RenderHTML<HTMLElement, HTMLDivElement>{
             projectState.addProject(project)
             this.clearUserInput()
         }
-        
     }
     private addSubmitListener(eventName:string,handler:(eve:Event)=>void){
         //注意，callBack function必須要透過bind才會找到本體唷!!!!!
         this.element.addEventListener(eventName,handler)
     }
 }
-export class RenderList extends RenderHTML<HTMLElement, HTMLDivElement> {
+export class RenderList extends RenderHTML<HTMLElement, HTMLDivElement> implements Dropable{
     private assignProjects:Project[]; //裝載訂閱ProjectState獲得的資料
     constructor(template:HTMLTemplateElement,hostEle:HTMLDivElement, private type:'active' | 'finished',_option:RenderOption = {insertPosition:'afterbegin'}){
         super(template,hostEle,_option)
@@ -166,11 +168,45 @@ export class RenderList extends RenderHTML<HTMLElement, HTMLDivElement> {
             })
             this.renderProjects()
         })
+        //監聽drag事件
+        this.listenDragEvent()
         //渲染內容
         this.renderContent()
-        
     }
-    configure(): void {}
+    @autobind
+    dragOverHandler(event: DragEvent): void {
+        event.preventDefault()  //告訴瀏覽器，這個類別允許drop(默認是禁止的)
+            const listEle = this.element.querySelector('ul')! as HTMLUListElement
+            // listEle.classList.add('droppable')  //為可以dropable的區域添加高亮CSS
+            listEle.style.backgroundColor = 'black'
+        if(event.dataTransfer && event.dataTransfer.types[0] === 'text/plain'){  //限定只能是text/plain
+            // event.preventDefault()  //告訴瀏覽器，這個類別允許drop(默認是禁止的)
+            // const listEle = this.element.querySelector('ul')! as HTMLUListElement
+            // // listEle.classList.add('droppable')  //為可以dropable的區域添加高亮CSS
+            // listEle.style.backgroundColor = 'black'
+        }
+    }
+    @autobind
+    dragLeaveHandler(_event: DragEvent): void {
+        const listEle = this.element.querySelector('ul')! as HTMLUListElement
+        // listEle.classList.remove('droppable')  //移除dropable的區域添加高亮CSS
+        listEle.style.backgroundColor = 'white'
+    }
+    @autobind
+    dropHandler(event: DragEvent): void {
+        console.log('放下')
+        //取得拖曳元素的id
+        const projectid = event.dataTransfer!.getData('text/plain')
+        //切換ProjectItem的type
+        const projectState = ProjectState.getInstance()
+        projectState.switchProjectType(projectid,this.type === 'active'? ProjectType.ACTIVE : ProjectType.FINISHED)
+
+    }
+    listenDragEvent(){
+        this.element.addEventListener('dragover',this.dragOverHandler)
+        this.element.addEventListener('dragleave',this.dragLeaveHandler)
+        this.element.addEventListener('drop',this.dropHandler)
+    }
     renderContent(){
         const listid = `${this.type}-projects-list`
         //動態的給ulid

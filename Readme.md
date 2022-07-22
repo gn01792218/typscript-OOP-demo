@@ -173,6 +173,7 @@ interface Dropable {
 }
 
 ```
+#### (1)讓ProjectItem類別implment dragable
 ```javascript
 //為ProjectItem類implment dragable
 class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> implements Draggable {
@@ -195,6 +196,64 @@ class ProjectItem extends RenderHTML<HTMLLIElement,HTMLUListElement> implements 
         this.element.addEventListener('dragend',this.dragEndHandler)
     }
 
+```
+#### (2)為ProjectState添加切換Project.type的功能
+```javascript
+export class ProjectState extends State<Project>{
+    private projects:Project[] = []; //資料陣列
+    //...略
+    switchProjectType(projectId:string,newProjectType:ProjectType){
+        const project = this.projects.find(project=>{
+            return project.id === projectId
+        })
+        if(project) {
+            project.type = newProjectType
+            //記得重新渲染資料
+            this.updateState()
+        }
+    }
+    private updateState(){
+        for(let listernerFn of this.listeners){
+            //pass 訂閱者 要的資料
+            //使用slice複製資料，才不會改到原始資料
+            listernerFn(this.projects.slice())
+        }
+    }
+}
+```
+#### (3)讓ProjectList類別implements dropable
+```javascript
+class RenderList extends RenderHTML<HTMLElement, HTMLDivElement> implements Dropable{
+    //...略
+    @autobind
+    dragOverHandler(event: DragEvent): void {
+        if(event.dataTransfer && event.dataTransfer.types[0] === 'text/plain'){  //限定只能是text/plain
+            event.preventDefault()  //告訴瀏覽器，這個類別允許drop(默認是禁止的)
+            const listEle = this.element.querySelector('ul')! as HTMLUListElement
+            // listEle.classList.add('droppable')  //為可以dropable的區域添加高亮CSS
+            listEle.style.backgroundColor = 'black'
+        }
+    }
+    @autobind
+    dragLeaveHandler(_event: DragEvent): void {
+        const listEle = this.element.querySelector('ul')! as HTMLUListElement
+        // listEle.classList.remove('droppable')  //移除dropable的區域添加高亮CSS
+        listEle.style.backgroundColor = 'white'
+    }
+    @autobind
+    dropHandler(event: DragEvent): void {
+        //取得拖曳元素的id
+        const projectid = event.dataTransfer!.getData('text/plain')
+        //切換ProjectItem的type
+        const projectState = ProjectState.getInstance()
+        projectState.switchProjectType(projectid,this.type === 'active'? ProjectType.ACTIVE : ProjectType.FINISHED)
+
+    }
+    listenDragEvent(){
+        this.element.addEventListener('dragover',this.dragOverHandler)
+        this.element.addEventListener('dragleave',this.dragLeaveHandler)
+        this.element.addEventListener('drop',this.dropHandler)
+    }
 ```
 #### 為li元素添加draggable屬性
 ```html
