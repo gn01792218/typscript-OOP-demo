@@ -1,7 +1,7 @@
 // Code
 
 import { RenderForm, RenderList } from './class/render/render'
-
+import '/dist/style.css'
 //渲染form元素
 const formTemplate1 = document.getElementById('form') as HTMLTemplateElement
 const hostDiv1 = document.getElementById('app') as HTMLDivElement

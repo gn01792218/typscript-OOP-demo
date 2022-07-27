@@ -5,6 +5,7 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
+    publicPath: process.env.PUBLIC_PATH,
   },
   mode:'development',
   module: {
@@ -14,6 +15,10 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+				test: /\.css$/i,
+				use: ['style-loader','css-loader'],  //檔名是css的使用style和css loader
+			},
     ],
   },
   resolve: {

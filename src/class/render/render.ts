@@ -57,8 +57,7 @@ export abstract class RenderHTML<T extends HTMLElement, U extends HTMLElement> {
 }
 export class ProjectItem
   extends RenderHTML<HTMLLIElement, HTMLUListElement>
-  implements Draggable
-{
+  implements Draggable {
   private project: Project;
   //getter for peopleNum str
   get peopleNumStr() {
@@ -82,8 +81,9 @@ export class ProjectItem
     event.dataTransfer!.setData("text/plain", this.project.id);
     //讓該元素可以從A移動到B
     event.dataTransfer!.effectAllowed = "move";
+    this.element.classList.add("drag-active");
   }
-  dragEndHandler(_event: DragEvent): void {}
+  dragEndHandler(_event: DragEvent): void { }
   listenDragEvent() {
     this.element.addEventListener("dragstart", this.dragStartHandler);
     this.element.addEventListener("dragend", this.dragEndHandler);
@@ -114,7 +114,7 @@ export class RenderForm extends RenderHTML<HTMLElement, HTMLDivElement> {
     ) as HTMLInputElement;
     this.addSubmitListener("submit", this.submitHandler);
   }
-  renderContent() {}
+  renderContent() { }
   private getUserInput(): [string, string, number] | void {
     const title = this.titleInput.value;
     const description = this.decsriptionInput.value;
@@ -178,8 +178,7 @@ export class RenderForm extends RenderHTML<HTMLElement, HTMLDivElement> {
 }
 export class RenderList
   extends RenderHTML<HTMLElement, HTMLDivElement>
-  implements Dropable
-{
+  implements Dropable {
   private assignProjects: Project[]; //裝載訂閱ProjectState獲得的資料
   constructor(
     template: HTMLTemplateElement,
@@ -215,16 +214,16 @@ export class RenderList
     if (event.dataTransfer && event.dataTransfer.types[0] === "text/plain") {
       //限定只能是text/plain
       event.preventDefault(); //告訴瀏覽器，這個類別允許drop(默認是禁止的)
-      this.addDropableStyle()
+      this.addDropableStyle();
     }
   }
   @autobind
   dragLeaveHandler(_event: DragEvent): void {
-    this.removeDropableStyle()
+    this.removeDropableStyle();
   }
   @autobind
   dropHandler(event: DragEvent): void {
-    this.removeDropableStyle()
+    this.removeDropableStyle();
     //取得拖曳元素的id
     const projectid = event.dataTransfer!.getData("text/plain");
     //切換ProjectItem的type
@@ -248,13 +247,11 @@ export class RenderList
   }
   private addDropableStyle() {
     const listEle = this.element.querySelector("ul")! as HTMLUListElement;
-    // listEle.classList.add('droppable')  //為可以dropable的區域添加高亮CSS
-    listEle.style.backgroundColor = "black";
+    listEle.classList.add("droppable"); //為可以dropable的區域添加高亮CSS
   }
-  private removeDropableStyle(){
+  private removeDropableStyle() {
     const listEle = this.element.querySelector("ul")! as HTMLUListElement;
-    // listEle.classList.remove('droppable')  //移除dropable的區域添加高亮CSS
-    listEle.style.backgroundColor = "white";
+    listEle.classList.remove("droppable"); //移除dropable的區域添加高亮CSS
   }
   private renderProjects() {
     const listEle = this.element.querySelector("ul")! as HTMLUListElement;
